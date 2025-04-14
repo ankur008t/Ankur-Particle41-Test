@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+# Set working directory to the project root
+WORKDIR /project
+
+# Copy requirements files
+COPY app/requirements.txt ./app/
+RUN pip install --no-cache-dir -r app/requirements.txt
+
+# Copy test requirements if you have them
+COPY tests/requirements-test.txt ./tests/ 
+RUN if [ -f tests/requirements-test.txt ]; then pip install --no-cache-dir -r tests/requirements-test.txt; fi
+COPY pytest.ini .
+
+# Install pytest and test dependencies if not already included
+RUN pip install pytest httpx
+
+# Copy application code and tests
+COPY app/ ./app/
+COPY tests/ ./tests/
+
+# Set PYTHONPATH to include the project root
+ENV PYTHONPATH=/project
+
+# Run tests from the project root
+CMD ["pytest", "tests/"]
