@@ -178,9 +178,13 @@ jobs:
           terraform init
           
       - name: Terraform Plan
+        env:
+         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+         ECR_REPOSITORY: simpletimeservice
+         IMAGE_TAG: ${{ github.sha }}
         run: |
           cd terraform
-          terraform plan -out=tfplan
+          terraform plan -out=tfplan -var="image_tag=$IMAGE_TAG" -out=tfplan
           
       - name: Terraform Apply
         run: |

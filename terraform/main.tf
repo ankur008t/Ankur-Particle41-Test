@@ -108,7 +108,7 @@ resource "aws_lambda_function" "app" {
   function_name = var.project_name
   role          = aws_iam_role.lambda_role.arn
   package_type  = "Image"
-  image_uri     = "${data.aws_ecr_repository.app.repository_url}:latest"
+  image_uri     = "${data.aws_ecr_repository.app.repository_url}:${var.image_tag}""
   timeout       = 60
   memory_size   = 1024
 

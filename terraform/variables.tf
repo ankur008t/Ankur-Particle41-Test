@@ -48,3 +48,9 @@ variable "aws_account" {
   description = "AWS Account Number"
   type        = string
 }
+
+variable "image_tag" {
+  description = "The tag for the container image"
+  type        = string
+  default     = "latest"
+}
