@@ -97,7 +97,7 @@ resource "aws_lambda_function" "app" {
   function_name = var.project_name
   role          = aws_iam_role.lambda_role.arn
   package_type  = "Image"
-  image_uri     = var.container_image  # This is the public Docker Hub image
+  image_uri = "${data.aws_ecr_repository.app.repository_url}:latest"
   timeout       = 30
   memory_size   = 256
 

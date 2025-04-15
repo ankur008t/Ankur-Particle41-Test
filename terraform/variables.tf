@@ -42,3 +42,9 @@ variable "service_desired_count" {
   description = "Number of instances of the service to run"
   type        = number
 }
+
+variable "container_image" {
+  description = "Docker image for the application"
+  type        = string
+  default     = "placeholder"  # Add a default value
+}
