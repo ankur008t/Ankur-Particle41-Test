@@ -170,3 +170,7 @@ resource "aws_lambda_permission" "api_gw" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
 }
+
+data "aws_ecr_repository" "app" {
+  name = "simpletimeservice"
+}

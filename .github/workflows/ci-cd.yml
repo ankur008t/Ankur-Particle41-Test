@@ -100,6 +100,26 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        
+      - name: Create ECR repository if it doesn't exist
+        run: |
+            aws ecr describe-repositories --repository-names simpletimeservice || \
+            aws ecr create-repository --repository-name simpletimeservice
+        
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: simpletimeservice
+            IMAGE_TAG: ${{ github.sha }}
+        run: |
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+            echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
       - name: Create Terraform Backend Infrastructure
         run: |
             # Check if the bucket already exists
