@@ -8,6 +8,7 @@ def create_app():
     app = FastAPI(title="SimpleTimeService")
 
     @app.get("/")
+    @app.get("/{path:path}")
     async def get_time_and_ip(request: Request):
         client_ip = request.client.host
         return {
@@ -19,7 +20,7 @@ def create_app():
 
 # Only create the app when needed
 app = create_app()
-handler = Mangum(app)
+handler = Mangum(app, lifespan="off", api_gateway_base_path=None)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000)

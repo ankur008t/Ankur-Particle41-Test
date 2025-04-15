@@ -180,3 +180,9 @@ resource "aws_lambda_permission" "api_gw" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
 }
+
+resource "aws_apigatewayv2_route" "catch_all" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "GET /{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+}
