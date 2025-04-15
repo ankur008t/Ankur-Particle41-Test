@@ -116,6 +116,10 @@ resource "aws_lambda_function" "app" {
     Environment = var.environment
     Project     = var.project_name
   }
+
+  depends_on = [
+    aws_ecr_repository_policy.lambda_access
+  ]
 }
 
 # API Gateway REST API
@@ -173,4 +177,29 @@ resource "aws_lambda_permission" "api_gw" {
 
 data "aws_ecr_repository" "app" {
   name = "simpletimeservice"
+}
+
+resource "aws_ecr_repository_policy" "lambda_access" {
+  repository = data.aws_ecr_repository.app.name
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid    = "LambdaECRImageRetrievalPolicy",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+        Action = [
+          "ecr:BatchGetImage",
+          "ecr:GetDownloadUrlForLayer"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_ecr" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = "arn:aws:iam::aws:policy:AmazonECR-ReadOnly"
 }
