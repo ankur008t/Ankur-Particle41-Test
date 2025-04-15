@@ -47,14 +47,14 @@ jobs:
           
       - name: Install security tools
         run: |
-          python -m pip install --upgrade pip
-          pip install bandit safety
-          
+            python -m pip install --upgrade pip
+            pip install bandit safety
+            
       - name: Run static code analysis
         run: bandit -r app/ --skip B104
-        
+          
       - name: Check dependencies for vulnerabilities
-        run: safety scan -r app/requirements.txt
+        run: safety check -r app/requirements.txt
 
   build-and-push:
     runs-on: ubuntu-latest
