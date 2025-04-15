@@ -204,6 +204,11 @@ The workflow is triggered on:
 - Pushes to the main branch that modify app code, terraform code, Dockerfile, or CI/CD configuration
 - Pull requests to the main branch
 
+## Live Demo
+The SimpleTimeService is currently deployed and accessible at:
+https://dp21vbdhtb.execute-api.us-east-1.amazonaws.com/dev/
+This endpoint returns a JSON response with the current timestamp and your IP address.
+
 ## Contributing
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/your-feature-name`
