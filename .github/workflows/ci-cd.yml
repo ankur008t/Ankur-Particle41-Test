@@ -76,7 +76,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./app/Dockerfile
+          file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/simpletimeservice:latest,${{ secrets.DOCKERHUB_USERNAME }}/simpletimeservice:${{ github.sha }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/simpletimeservice:buildcache
