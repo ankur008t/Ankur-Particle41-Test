@@ -148,10 +148,6 @@ resource "aws_lambda_function" "app" {
     Environment = var.environment
     Project     = var.project_name
   }
-
-  depends_on = [
-    aws_ecr_repository_policy.lambda_access
-  ]
 }
 
 # API Gateway REST API
