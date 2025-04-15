@@ -109,8 +109,8 @@ resource "aws_lambda_function" "app" {
   role          = aws_iam_role.lambda_role.arn
   package_type  = "Image"
   image_uri     = "${data.aws_ecr_repository.app.repository_url}:latest"
-  timeout       = 30
-  memory_size   = 256
+  timeout       = 60
+  memory_size   = 1024
 
   vpc_config {
     subnet_ids         = module.vpc.private_subnets

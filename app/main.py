@@ -2,11 +2,16 @@ from fastapi import FastAPI, Request
 from datetime import datetime
 import uvicorn
 from mangum import Mangum
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 app = FastAPI(title="SimpleTimeService")
 
 @app.get("/")
 async def get_time_and_ip(request: Request):
+    logger.info("Request received")
     client_ip = request.client.host
     return {
         "timestamp": datetime.now().isoformat(),
