@@ -9,12 +9,12 @@ SimpleTimeService is a lightweight microservice that returns the current timesta
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-- [Running the Application](#running-the-application)
-  - [Locally](#locally)
-  - [Using Docker](#using-docker)
+  - [Running the Application](#running-the-application)
 - [Testing](#testing)
 - [Security Scanning](#security-scanning)
 - [Infrastructure as Code](#infrastructure-as-code)
+  - [Deployment Instructions](#deployment-instructions)
+  - [Infrastructure Overview](#infrastructure-overview)
 - [CI/CD Pipeline](#cicd-pipeline)
 - [Contributing](#contributing)
 
@@ -37,8 +37,8 @@ SimpleTimeService is a lightweight microservice that returns the current timesta
 │   └── test_main.py      # Unit tests for the application
 ├── terraform/            # Infrastructure as Code
 │   ├── main.tf           # Main Terraform configuration
-│   ├── variables.tf      # Variable definitions
-│   └── outputs.tf        # Output definitions
+│   ├── outputs.tf        # Output definitions
+│   └── terraform.tfvars  # Default variable values
 ├── .github/              # GitHub Actions workflows
 │   └── workflows/
 │       ├── ci-cd.yml             # CI/CD pipeline
@@ -59,39 +59,39 @@ SimpleTimeService is a lightweight microservice that returns the current timesta
 - AWS CLI (configured with appropriate credentials for Terraform)
 
 ### Installation
-Clone the repository:
+1. Clone the repository:
 ```bash
 git clone https://github.com/ankur008t/Ankur-Particle41-Test.git
 cd Ankur-Particle41-Test
 ```
 
-Install dependencies:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Running the Application
+### Running the Application
 
-### Locally
-Navigate to the app directory:
+#### Locally
+1. Navigate to the app directory:
 ```bash
 cd app
 ```
 
-Run the application:
+2. Run the application:
 ```bash
 python main.py
 ```
 
 Access the service at http://localhost:8000/
 
-### Using Docker
-Build the Docker image:
+#### Using Docker
+1. Build the Docker image:
 ```bash
 docker build -t simpletimeservice .
 ```
 
-Run the container:
+2. Run the container:
 ```bash
 docker run -p 8000:8000 simpletimeservice
 ```
@@ -112,7 +112,6 @@ docker run simpletimeservice-test
 
 ## Security Scanning
 This project includes several security scanning tools integrated via GitHub Actions:
-
 - Bandit: Static code analysis for Python
 - Safety: Dependency vulnerability scanning
 - CodeQL: Advanced semantic code analysis
@@ -131,40 +130,107 @@ safety check -r requirements.txt
 ```
 
 ## Infrastructure as Code
-The project includes Terraform configurations to deploy the application to AWS:
 
-Navigate to the terraform directory:
+### Deployment Instructions
+
+#### Prerequisites
+- AWS CLI installed and configured
+- Terraform installed (v1.0+)
+
+#### Authentication
+To deploy this infrastructure, you need to authenticate with AWS. Do NOT commit credentials to the repository.
+
+Choose one of the following authentication methods:
+
+1. AWS CLI Configuration:
+```bash
+aws configure
+```
+You'll be prompted to enter:
+- AWS Access Key ID
+- AWS Secret Access Key
+- Default region
+- Default output format
+
+2. Environment Variables:
+```bash
+export AWS_ACCESS_KEY_ID="your-access-key"
+export AWS_SECRET_ACCESS_KEY="your-secret-key"
+export AWS_REGION="us-east-1"
+```
+
+#### Deploying the Infrastructure
+1. Navigate to the terraform directory:
 ```bash
 cd terraform
 ```
 
-Initialize Terraform:
+2. The deployment requires only two commands:
+
+   Plan the deployment:
+   ```bash
+   terraform plan
+   ```
+
+   Apply the configuration:
+   ```bash
+   terraform apply
+   ```
+
+After successful deployment, the API Gateway URL will be displayed in the outputs. You can access the SimpleTimeService through this URL.
+
+#### Advanced: Remote State Management (Optional)
+For production environments, you can use remote state management:
+
+1. Create a file named `main.tf.remote` with the following backend configuration:
+```hcl
+terraform {
+  backend "s3" {
+    bucket         = "simpletimeservice-terraform-state"
+    key            = "terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "simpletimeservice-terraform-lock"
+    encrypt        = true
+  }
+  
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+```
+
+2. Create and run the backend setup script:
+```bash
+# Create setup-backend.sh
+chmod +x setup-backend.sh
+./setup-backend.sh
+```
+
+3. Initialize Terraform with the remote backend:
 ```bash
 terraform init
 ```
 
-Plan the deployment:
-```bash
-terraform plan
-```
+### Infrastructure Overview
+This Terraform configuration creates:
+- VPC with 2 public and 2 private subnets
+- Serverless Lambda function running in private subnets
+- API Gateway to provide public access to the service
+- All necessary IAM roles and security groups
 
-Apply the configuration:
-```bash
-terraform apply
-```
-
-The infrastructure includes:
-- VPC with public and private subnets
-- ECS/EKS cluster for container orchestration
-- Load balancer for public access
-- Security groups and IAM roles
+The infrastructure uses a pre-built Docker image from Docker Hub that is maintained through the CI/CD pipeline.
 
 ## CI/CD Pipeline
 The project uses GitHub Actions for continuous integration and deployment:
-
 - Build and Test: Runs on every push and pull request
 - Security Scanning: Checks for vulnerabilities
-- Docker Image Building: Creates and tests the container image
+- Docker Image Building: Creates and pushes the container image to Docker Hub
+- Deployment: Updates the infrastructure with the new image
+
+The CI/CD pipeline automatically builds and deploys changes to the application code whenever changes are pushed to the main branch.
 
 ## Contributing
 1. Fork the repository
@@ -173,4 +239,4 @@ The project uses GitHub Actions for continuous integration and deployment:
 4. Push to the branch: `git push origin feature/your-feature-name`
 5. Open a pull request
 
-This project was created as part of the Particle41 technical assessment.
+*This project was created as part of the Particle41 technical assessment.*
