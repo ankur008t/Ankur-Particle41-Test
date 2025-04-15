@@ -25,6 +25,9 @@ SimpleTimeService is a lightweight microservice that returns the current timesta
 - Comprehensive test suite
 - Security scanning with GitHub Actions
 - Infrastructure as Code with Terraform (AWS)
+- AWS Lambda deployment with API Gateway
+- Amazon ECR integration for container image storage
+- Automated CI/CD pipeline with GitHub Actions
 
 ## Project Structure
 ```
@@ -32,12 +35,13 @@ SimpleTimeService is a lightweight microservice that returns the current timesta
 ├── app/                  # Application code
 │   ├── main.py           # FastAPI application
 │   ├── requirements.txt  # Python dependencies
-│   └── Dockerfile        # Container definition
 ├── tests/                # Test suite
-│   └── test_main.py      # Unit tests for the application
+│   ├── test_main.py      # Unit tests for the application
+│   └── requirements-test.txt # Test dependencies
 ├── terraform/            # Infrastructure as Code
 │   ├── main.tf           # Main Terraform configuration
 │   ├── outputs.tf        # Output definitions
+│   ├── variables.tf      # Variable declarations
 │   └── terraform.tfvars  # Default variable values
 ├── .github/              # GitHub Actions workflows
 │   └── workflows/
@@ -45,8 +49,7 @@ SimpleTimeService is a lightweight microservice that returns the current timesta
 │       ├── security-scan.yml     # Security scanning
 │       ├── codeql-analysis.yml   # Code quality analysis
 │       └── dependency-review.yml # Dependency review
-├── Dockerfile.test       # Docker configuration for testing
-├── requirements.txt      # Project-level dependencies
+├── Dockerfile            # Docker configuration for the application
 └── README.md             # Project documentation
 ```
 
@@ -67,19 +70,15 @@ cd Ankur-Particle41-Test
 
 2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+pip install -r app/requirements.txt
 ```
 
 ### Running the Application
 
 #### Locally
-1. Navigate to the app directory:
+1. Run the application:
 ```bash
 cd app
-```
-
-2. Run the application:
-```bash
 python main.py
 ```
 
@@ -101,13 +100,8 @@ Access the service at http://localhost:8000/
 ## Testing
 Run the test suite to ensure everything is working correctly:
 ```bash
+pip install -r tests/requirements-test.txt
 pytest
-```
-
-To run tests in a Docker container:
-```bash
-docker build -f Dockerfile.test -t simpletimeservice-test .
-docker run simpletimeservice-test
 ```
 
 ## Security Scanning
@@ -123,10 +117,10 @@ To run security scans locally:
 pip install bandit safety
 
 # Run static code analysis
-bandit -r app/
+bandit -r app/ --skip B104
 
 # Check dependencies for vulnerabilities
-safety check -r requirements.txt
+safety check -r app/requirements.txt
 ```
 
 ## Infrastructure as Code
@@ -165,72 +159,50 @@ export AWS_REGION="us-east-1"
 cd terraform
 ```
 
-2. The deployment requires only two commands:
-
-   Plan the deployment:
-   ```bash
-   terraform plan
-   ```
-
-   Apply the configuration:
-   ```bash
-   terraform apply
-   ```
-
-After successful deployment, the API Gateway URL will be displayed in the outputs. You can access the SimpleTimeService through this URL.
-
-#### Advanced: Remote State Management (Optional)
-For production environments, you can use remote state management:
-
-1. Create a file named `main.tf.remote` with the following backend configuration:
-```hcl
-terraform {
-  backend "s3" {
-    bucket         = "simpletimeservice-terraform-state"
-    key            = "terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "simpletimeservice-terraform-lock"
-    encrypt        = true
-  }
-  
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
-  }
-}
-```
-
-2. Create and run the backend setup script:
-```bash
-# Create setup-backend.sh
-chmod +x setup-backend.sh
-./setup-backend.sh
-```
-
-3. Initialize Terraform with the remote backend:
+2. Initialize Terraform:
 ```bash
 terraform init
 ```
+
+3. Plan the deployment:
+```bash
+terraform plan
+```
+
+4. Apply the configuration:
+```bash
+terraform apply
+```
+
+After successful deployment, the API Gateway URL will be displayed in the outputs. You can access the SimpleTimeService through this URL.
 
 ### Infrastructure Overview
 This Terraform configuration creates:
 - VPC with 2 public and 2 private subnets
 - Serverless Lambda function running in private subnets
 - API Gateway to provide public access to the service
+- Amazon ECR repository for storing container images
 - All necessary IAM roles and security groups
 
-The infrastructure uses a pre-built Docker image from Docker Hub that is maintained through the CI/CD pipeline.
+The infrastructure uses a container image from Amazon ECR that is maintained through the CI/CD pipeline.
 
 ## CI/CD Pipeline
 The project uses GitHub Actions for continuous integration and deployment:
 - Build and Test: Runs on every push and pull request
 - Security Scanning: Checks for vulnerabilities
-- Docker Image Building: Creates and pushes the container image to Docker Hub
-- Deployment: Updates the infrastructure with the new image
+- Docker Image Building: Creates and pushes the container image to Docker Hub and Amazon ECR
+- Terraform Deployment: Provisions and updates the AWS infrastructure
 
-The CI/CD pipeline automatically builds and deploys changes to the application code whenever changes are pushed to the main branch.
+The CI/CD pipeline automatically:
+1. Runs tests and security scans
+2. Builds the Docker image and pushes it to Amazon ECR
+3. Deploys the infrastructure using Terraform
+4. Updates the Lambda function to use the latest image
+
+### CI/CD Workflow
+The workflow is triggered on:
+- Pushes to the main branch that modify app code, terraform code, Dockerfile, or CI/CD configuration
+- Pull requests to the main branch
 
 ## Contributing
 1. Fork the repository
