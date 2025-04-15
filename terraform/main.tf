@@ -22,6 +22,32 @@ provider "aws" {
   region = var.aws_region
 }
 
+# Data source for ECR repository
+data "aws_ecr_repository" "app" {
+  name = "simpletimeservice"
+}
+
+# ECR repository policy for Lambda access
+resource "aws_ecr_repository_policy" "lambda_access" {
+  repository = data.aws_ecr_repository.app.name
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid    = "LambdaECRImageRetrievalPolicy",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        },
+        Action = [
+          "ecr:BatchGetImage",
+          "ecr:GetDownloadUrlForLayer"
+        ]
+      }
+    ]
+  })
+}
+
 # VPC with public and private subnets
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -92,12 +118,18 @@ resource "aws_iam_role_policy_attachment" "lambda_vpc_access" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
-# Lambda function using the public Docker Hub image
+# Attach ECR access policy
+resource "aws_iam_role_policy_attachment" "lambda_ecr" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECR-ReadOnly"
+}
+
+# Lambda function using the ECR image
 resource "aws_lambda_function" "app" {
   function_name = var.project_name
   role          = aws_iam_role.lambda_role.arn
   package_type  = "Image"
-  image_uri = "${data.aws_ecr_repository.app.repository_url}:latest"
+  image_uri     = "${data.aws_ecr_repository.app.repository_url}:latest"
   timeout       = 30
   memory_size   = 256
 
@@ -173,33 +205,4 @@ resource "aws_lambda_permission" "api_gw" {
   function_name = aws_lambda_function.app.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.api.execution_arn}/*/*"
-}
-
-data "aws_ecr_repository" "app" {
-  name = "simpletimeservice"
-}
-
-resource "aws_ecr_repository_policy" "lambda_access" {
-  repository = data.aws_ecr_repository.app.name
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Sid    = "LambdaECRImageRetrievalPolicy",
-        Effect = "Allow",
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        },
-        Action = [
-          "ecr:BatchGetImage",
-          "ecr:GetDownloadUrlForLayer"
-        ]
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_ecr" {
-  role       = aws_iam_role.lambda_exec.name
-  policy_arn = "arn:aws:iam::aws:policy:AmazonECR-ReadOnly"
 }
