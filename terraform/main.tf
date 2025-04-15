@@ -100,7 +100,7 @@ resource "aws_iam_role_policy_attachment" "lambda_vpc_access" {
 # Attach ECR access policy
 resource "aws_iam_role_policy_attachment" "lambda_ecr" {
   role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/Particle41-ECR-Policy"
+  policy_arn = "arn:aws:iam::${var.aws_account}:policy/Particle41-ECR-Policy"
 }
 
 # Lambda function using the ECR image

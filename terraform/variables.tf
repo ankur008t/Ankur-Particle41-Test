@@ -43,3 +43,8 @@ variable "container_image" {
   type        = string
   default     = "placeholder"  # Add a default value
 }
+
+variable "aws_account" {
+  description = "AWS Account Number"
+  type        = string
+}
