@@ -33,11 +33,6 @@ variable "public_subnet_cidrs" {
   type        = list(string)
 }
 
-variable "container_image" {
-  description = "Docker image for the application"
-  type        = string
-}
-
 variable "service_desired_count" {
   description = "Number of instances of the service to run"
   type        = number
