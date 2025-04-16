@@ -1,6 +1,6 @@
 # Data source for ECR repository
 data "aws_ecr_repository" "app" {
-  name = "simpletimeservice-${var.branch_name}"
+  name = "simpletimeservice"
 }
 
 # ECR repository policy for Lambda access
