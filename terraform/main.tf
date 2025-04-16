@@ -3,10 +3,10 @@ terraform {
   
   # Backend configuration for state management
   backend "s3" {
-    bucket         = "simpletimeservice-terraform-state"
+    bucket         = "simpletimeservice-${var.branch_name}-terraform-state"
     key            = "terraform.tfstate"
     region         = "us-east-1"
-    dynamodb_table = "simpletimeservice-terraform-lock"
+    dynamodb_table = "simpletimeservice-${var.branch_name}-terraform-lock"
     encrypt        = true
   }
 
