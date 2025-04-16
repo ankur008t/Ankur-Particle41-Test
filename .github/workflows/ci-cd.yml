@@ -175,7 +175,7 @@ jobs:
       - name: Terraform Init
         run: |
           cd terraform
-          terraform init
+          terraform init -backend-config="key=${{ env.BRANCH_NAME }}/terraform.tfstate"
           
       - name: Terraform Plan
         env:
