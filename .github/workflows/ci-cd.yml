@@ -189,4 +189,4 @@ jobs:
       - name: Terraform Apply
         run: |
           cd terraform
-          terraform apply -auto-approve -var="branch_name=${{ env.BRANCH_NAME }}" tfplan
+          terraform apply -auto-approve -var="branch_name=${{ env.BRANCH_NAME }}" -var="environment=${{ env.BRANCH_NAME }}" tfplan
