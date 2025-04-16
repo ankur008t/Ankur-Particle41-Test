@@ -206,7 +206,9 @@ The workflow is triggered on:
 
 ## Live Demo
 The SimpleTimeService is currently deployed and accessible at:
-https://dp21vbdhtb.execute-api.us-east-1.amazonaws.com/dev/
+
+[https://dp21vbdhtb.execute-api.us-east-1.amazonaws.com/dev/](https://c946dmmsvg.execute-api.us-east-1.amazonaws.com/simpletimeservice-dev/)
+
 This endpoint returns a JSON response with the current timestamp and your IP address.
 
 ## Contributing
