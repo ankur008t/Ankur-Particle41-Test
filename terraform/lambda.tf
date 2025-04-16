@@ -20,6 +20,6 @@ resource "aws_lambda_function" "app" {
 
   tags = {
     Environment = var.environment
-    Project     = ${var.project_name}-${var.branch_name}
+    Project     = var.project_name
   }
 }
