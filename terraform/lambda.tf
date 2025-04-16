@@ -1,6 +1,6 @@
 # Lambda function using the ECR image
 resource "aws_lambda_function" "app" {
-  function_name = var.project_name-var.branch_name
+  function_name = ${var.project_name}-${var.branch_name}
   role          = aws_iam_role.lambda_role.arn
   package_type  = "Image"
   image_uri     = "${data.aws_ecr_repository.app.repository_url}:latest"
@@ -20,6 +20,6 @@ resource "aws_lambda_function" "app" {
 
   tags = {
     Environment = var.environment
-    Project     = var.project_name-var.branch_name
+    Project     = ${var.project_name}-${var.branch_name}
   }
 }

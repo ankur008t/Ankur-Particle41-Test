@@ -15,7 +15,7 @@ module "vpc" {
 
   tags = {
     Environment = var.environment
-    Project     = var.project_name-var.branch_name
+    Project     = ${var.project_name}-${var.branch_name}
   }
 }
 
@@ -34,6 +34,6 @@ resource "aws_security_group" "lambda_sg" {
 
   tags = {
     Environment = var.environment
-    Project     = var.project_name-var.branch_name
+    Project     = ${var.project_name}-${var.branch_name}
   }
 }
