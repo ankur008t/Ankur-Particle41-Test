@@ -90,6 +90,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
+      - name: Set branch name
+        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+      
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         
@@ -113,7 +116,7 @@ jobs:
         env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
             ECR_REPOSITORY: simpletimeservice
-            IMAGE_TAG: ${{ github.sha }}
+            IMAGE_TAG: ${{ github.sha }}-${{ env.BRANCH_NAME }}
         run: |
             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile.lambda -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -181,7 +184,7 @@ jobs:
         env:
          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
          ECR_REPOSITORY: simpletimeservice
-         IMAGE_TAG: ${{ github.sha }}
+         IMAGE_TAG: ${{ github.sha }}-${{ env.BRANCH_NAME }}
         run: |
           cd terraform
           terraform plan -out=tfplan -var="image_tag=$IMAGE_TAG" -var="branch_name=${{ env.BRANCH_NAME }}" -out=tfplan
