@@ -54,3 +54,9 @@ variable "image_tag" {
   type        = string
   default     = "latest"
 }
+
+variable "branch_name" {
+  description = "The name of the branch being deployed (e.g., main, dev, feature)"
+  type        = string
+  default     = "main"  
+}

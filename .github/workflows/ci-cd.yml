@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
     paths:
       - 'app/**'
       - '.github/workflows/ci-cd.yml'
@@ -14,7 +14,7 @@ on:
       - 'app/**'
       - '.github/workflows/ci-cd.yml'
       - 'Dockerfile'
-
+      - 'terraform/**'
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -60,7 +60,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     needs: [test, security-scan]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     steps:
       - uses: actions/checkout@v3
       
@@ -86,9 +86,14 @@ jobs:
   terraform-deploy:
     runs-on: ubuntu-latest
     needs: [test, security-scan]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     steps:
       - uses: actions/checkout@v3
+      
+      - name: Set branch name
+        id: branch
+        run: |
+          echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
       
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -113,12 +118,12 @@ jobs:
         env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
             ECR_REPOSITORY: simpletimeservice
-            IMAGE_TAG: ${{ github.sha }}
+            IMAGE_TAG: ${{ github.sha }}-${{ steps.branch.outputs.BRANCH_NAME }}
         run: |
             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f Dockerfile.lambda -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-            echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+            echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Create Terraform Backend Infrastructure
         run: |
@@ -175,18 +180,17 @@ jobs:
       - name: Terraform Init
         run: |
           cd terraform
-          terraform init
-          
+          terraform init -backend-config="key=${{ steps.branch.outputs.BRANCH_NAME }}-terraform.tfstate"          
       - name: Terraform Plan
         env:
          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
          ECR_REPOSITORY: simpletimeservice
-         IMAGE_TAG: ${{ github.sha }}
+         IMAGE_TAG: ${{ github.sha }}-${{ steps.branch.outputs.BRANCH_NAME }}
         run: |
           cd terraform
-          terraform plan -out=tfplan -var="image_tag=$IMAGE_TAG" -out=tfplan
+          terraform plan -out=tfplan -var="image_tag=$IMAGE_TAG" -var="branch_name=${{ steps.branch.outputs.BRANCH_NAME }}" -out=tfplan
           
       - name: Terraform Apply
         run: |
           cd terraform
-          terraform apply -auto-approve tfplan
+          terraform apply -auto-approve -var="branch_name=${{ steps.branch.outputs.BRANCH_NAME }}" -var="environment=${{ steps.branch.outputs.BRANCH_NAME }}" tfplan
