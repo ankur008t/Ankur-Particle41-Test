@@ -201,7 +201,7 @@ jobs:
         run: |
           cd terraform
           api_endpoint=$(terraform output -raw api_gateway_url 2>/dev/null | head -n 1 || echo "")
-          echo "api_endpoint=$api_endpoint" >> $GITHUB_OUTPUT
+          echo "::set-output name=api_endpoint::$api_endpoint"
     outputs:
       api_endpoint: ${{ steps.terraform-output.outputs.api_endpoint }}
     
