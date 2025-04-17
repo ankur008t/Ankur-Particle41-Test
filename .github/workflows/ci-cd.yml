@@ -188,7 +188,7 @@ jobs:
          IMAGE_TAG: ${{ github.sha }}-${{ steps.branch.outputs.BRANCH_NAME }}
         run: |
           cd terraform
-          terraform plan -out=tfplan -var="image_tag=$IMAGE_TAG" -var="branch_name=${{ steps.branch.outputs.BRANCH_NAME }}" -out=tfplan
+          terraform plan -out=tfplan -var="image_tag=$IMAGE_TAG" -var="branch_name=${{ steps.branch.outputs.BRANCH_NAME }}" -var="environment=${{ steps.branch.outputs.BRANCH_NAME }}" -out=tfplan
           
       - name: Terraform Apply
         run: |

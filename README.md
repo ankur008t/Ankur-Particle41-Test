@@ -154,6 +154,14 @@ export AWS_REGION="us-east-1"
 ```
 
 #### Deploying the Infrastructure
+1. Setup S3 and DynamoDB for Terraform backend:
+```bash
+.\setup-backend.sh # for linux
+```
+```bash
+.\setup-backend.ps1 # for windows
+```
+
 1. Navigate to the terraform directory:
 ```bash
 cd terraform
@@ -161,7 +169,10 @@ cd terraform
 
 2. Initialize Terraform:
 ```bash
-terraform init
+terraform init # for remote backend
+```
+```bash
+terraform init -backend=false # for local backend
 ```
 
 3. Plan the deployment:
