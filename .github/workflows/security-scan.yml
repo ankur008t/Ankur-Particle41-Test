@@ -34,7 +34,7 @@ jobs:
       run: cat bandit-results.txt
         
     - name: Run Safety (Dependency Check)
-      run: safety check -r app/requirements.txt --api-key ${{ secrets.SAFETY_API_KEY }} 
+      run: safety check -r app/requirements.txt --key ${{ secrets.SAFETY_API_KEY }} 
       continue-on-error: true
       
     
