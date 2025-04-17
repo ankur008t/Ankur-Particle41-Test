@@ -54,8 +54,9 @@ jobs:
       - name: Run static code analysis
         run: bandit -r app/ --skip B104
           
-      - name: Check dependencies for vulnerabilities
-        run: safety check -r app/requirements.txt --key ${{ secrets.SAFETY_API_KEY }} 
+      - uses: pyupio/safety-action@v1
+        with:
+          api-key: ${{ secrets.SAFETY_API_KEY }}
 
   build-and-push:
     runs-on: ubuntu-latest
