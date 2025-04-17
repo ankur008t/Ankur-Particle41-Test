@@ -219,6 +219,9 @@ jobs:
             api_endpoint="$(terraform output -raw api_gateway_url)"
             echo "API_ENDPOINT=$api_endpoint" >> $GITHUB_OUTPUT
           else
+            echo "Error: API Gateway URL not found in Terraform outputs."
+            exit 1
+          fi
       - name: Debug Terraform Outputs
         id: debug-terraform-output
         run: |
