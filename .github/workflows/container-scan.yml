@@ -28,7 +28,7 @@ jobs:
         run: docker build -t simpletimeservice:${{ github.sha }} .
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.60.0
         with:
           image-ref: 'simpletimeservice:${{ github.sha }}'
           format: 'sarif'
@@ -38,7 +38,7 @@ jobs:
           ignore-unfixed: true
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'

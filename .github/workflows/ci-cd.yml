@@ -216,4 +216,4 @@ jobs:
       run: |
         pytest tests/test_integration.py -v
       env:
-        API_ENDPOINT: ${{ needs.terraform-apply.outputs.api_endpoint }}
+        API_ENDPOINT: ${{ needs.terraform-deploy.outputs.api_endpoint }}
