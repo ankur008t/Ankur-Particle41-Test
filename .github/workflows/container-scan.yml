@@ -28,7 +28,7 @@ jobs:
         run: docker build -t simpletimeservice:${{ github.sha }} .
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.60.0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: 'simpletimeservice:${{ github.sha }}'
           format: 'sarif'
