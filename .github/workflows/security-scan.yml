@@ -34,7 +34,7 @@ jobs:
       run: cat bandit-results.txt
         
     - name: Run Safety (Dependency Check)
-      run: safety check -r requirements.txt --json > safety-results.json
+      run: safety check -r app/requirements.txt --json > safety-results.json
       continue-on-error: true
       
     - name: Display Safety results
