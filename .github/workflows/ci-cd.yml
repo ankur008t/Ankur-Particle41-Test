@@ -202,7 +202,7 @@ jobs:
         id: terraform-output
         run: |
           cd terraform
-          api_endpoint=$(terraform output -raw api_gateway_url)
+          api_endpoint="$(terraform output -raw api_gateway_url)"
           echo "API_ENDPOINT=$api_endpoint">>$GITHUB_OUTPUT
         continue-on-error: true
 
