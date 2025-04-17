@@ -221,7 +221,9 @@ Please find the security scan results at:
 
 ## Live Demo
 The SimpleTimeService is currently deployed and accessible at:
+
 [Simple Time Service](https://dp21vbdhtb.execute-api.us-east-1.amazonaws.com/dev/)
+
 This endpoint returns a JSON response with the current timestamp and your IP address.
 
 ## Contributing
