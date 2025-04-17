@@ -87,6 +87,8 @@ jobs:
   terraform-deploy:
     runs-on: ubuntu-latest
     needs: [test, security-scan]
+    outputs:
+      API_ENDPOINT: ${{ steps.terraform-output.outputs.api_endpoint }}
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     steps:
       - uses: actions/checkout@v3
@@ -201,10 +203,16 @@ jobs:
         run: |
           cd terraform
           api_endpoint=$(terraform output -raw api_gateway_url)
-          echo "api_endpoint=$api_endpoint">>$GITHUB_OUTPUT
+          echo "API_ENDPOINT=$api_endpoint">>$GITHUB_OUTPUT
         continue-on-error: true
-    outputs:
-      api_endpoint: ${{ steps.terraform-output.outputs.api_endpoint }}
+
+      - name: Debug Terraform Outputs
+        id: debug-terraform-output
+        run: |
+          echo "API_ENDPOINT:$API_ENDPOINT"
+        env:
+          ECR_REGISTRY: ${{ steps.terraform-output.outputs.API_ENDPOINT }}
+    
     
   post-deployment-tests:
     needs: terraform-deploy
@@ -229,10 +237,10 @@ jobs:
         echo "API: $api_endpoint"
         echo "API: $API_ENDPOINT"
       env:
-        API_ENDPOINT: ${{ needs.terraform-deploy.outputs.api_endpoint }}
+        API_ENDPOINT: ${{ needs.terraform-deploy.outputs.API_ENDPOINT }}
         
     - name: Run integration tests against newly deployed infrastructure
       run: |
         pytest tests/test_integration.py -v
       env:
-        API_ENDPOINT: ${{ needs.terraform-deploy.outputs.api_endpoint }}
+        API_ENDPOINT: ${{ needs.terraform-deploy.outputs.API_ENDPOINT }}
