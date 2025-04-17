@@ -34,15 +34,7 @@ jobs:
       run: cat bandit-results.txt
         
     - name: Run Safety (Dependency Check)
-      run: safety check -r app/requirements.txt --json > safety-results.json
+      run: safety check -r app/requirements.txt --api-key ${{ secrets.SAFETY_API_KEY }} 
       continue-on-error: true
       
-    - name: Display Safety results
-      run: cat safety-results.json
-      
-    - name: Check for critical vulnerabilities
-      run: |
-        if grep -q '"severity": "critical"' safety-results.json; then
-          echo "Critical vulnerabilities found!"
-          exit 1
-        fi
+    

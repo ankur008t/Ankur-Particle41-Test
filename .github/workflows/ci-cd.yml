@@ -55,7 +55,7 @@ jobs:
         run: bandit -r app/ --skip B104
           
       - name: Check dependencies for vulnerabilities
-        run: safety check -r app/requirements.txt
+        run: safety check -r app/requirements.txt --api-key ${{ secrets.SAFETY_API_KEY }} 
 
   build-and-push:
     runs-on: ubuntu-latest
