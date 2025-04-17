@@ -202,6 +202,8 @@ jobs:
           cd terraform
           api_endpoint=$(terraform output -raw api_gateway_url 2>/dev/null | head -n 1 || echo "")
           echo "::set-output name=api_endpoint::$api_endpoint"
+          echo "image=$test" >> $GITHUB_OUTPUT
+        continue-on-error: true
     outputs:
       api_endpoint: ${{ steps.terraform-output.outputs.api_endpoint }}
     
@@ -224,7 +226,10 @@ jobs:
     
     - name: Debug API Endpoint
       run: |
-        echo "API Endpoint: ${{ needs.terraform-deploy.outputs.api_endpoint }}"
+        echo "API Endpoint: $API_ENDPOINT"
+        echo "TEST: $TEST"
+      env:
+        API_ENDPOINT: ${{ needs.terraform-deploy.outputs.api_endpoint }}
         
     - name: Run integration tests against newly deployed infrastructure
       run: |
