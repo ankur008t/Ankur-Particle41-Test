@@ -207,14 +207,10 @@ jobs:
           terraform plan -out=tfplan -var="image_tag=$IMAGE_TAG" -var="branch_name=${{ steps.branch.outputs.BRANCH_NAME }}" -var="environment=${{ steps.branch.outputs.BRANCH_NAME }}"
           
       - name: Terraform Apply
+        id: tf-apply
         run: |
           cd terraform
           terraform apply -auto-approve -var="branch_name=${{ steps.branch.outputs.BRANCH_NAME }}" -var="environment=${{ steps.branch.outputs.BRANCH_NAME }}" tfplan
-
-      - name: Get Terraform Outputs
-        id: terraform-output
-        run: |
-          cd terraform
           api_gateway_url=$(terraform output -json | jq -r '.api_gateway_url.value // empty')
           if [ -n "$api_gateway_url" ]; then
             echo "API_ENDPOINT=$api_gateway_url" >> $GITHUB_OUTPUT
@@ -222,13 +218,14 @@ jobs:
             echo "Error: API Gateway URL not found in Terraform outputs."
             exit 1
           fi
+
       - name: Debug Terraform Outputs
         id: debug-terraform-output
         run: |
-          echo "API_ENDPOINT: ${{ steps.terraform-output.outputs.API_ENDPOINT }}"
-          echo "API_ENDPOINT: ${{ steps.terraform-output.outputs.api_endpoint }}"
+          echo "API_ENDPOINT: ${{ steps.tf-apply.outputs.API_ENDPOINT }}"
+          echo "API_ENDPOINT: ${{ steps.tf-apply.outputs.api_endpoint }}"
         env:
-          API_ENDPOINT: ${{ steps.terraform-output.outputs.API_ENDPOINT }}
+          API_ENDPOINT: ${{ steps.tf-apply.outputs.API_ENDPOINT }}
     
     
   post-deployment-tests:
