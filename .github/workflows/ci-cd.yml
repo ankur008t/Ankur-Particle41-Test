@@ -222,6 +222,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r tests/requirements-test.txt
     
+    - name: Debug API Endpoint
+      run: |
+        echo "API Endpoint: ${{ needs.terraform-deploy.outputs.api_endpoint }}"
+        
     - name: Run integration tests against newly deployed infrastructure
       run: |
         pytest tests/test_integration.py -v
