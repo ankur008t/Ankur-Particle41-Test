@@ -202,7 +202,8 @@ jobs:
         id: terraform-output
         run: |
           cd terraform
-          api_endpoint=$(terraform output -raw api_endpoint 2>/dev/null || echo "")
+          api_endpoint=$(terraform output -raw api_gateway_url 2>/dev/null || true)
+          echo "Debug: api_endpoint is '$api_endpoint'"
           echo "api_endpoint=$api_endpoint" >> $GITHUB_OUTPUT
 
   post-deployment-tests:
