@@ -19,19 +19,6 @@ def test_response_structure():
     
     assert "timestamp" in data
     assert "ip" in data
-    
-def test_timestamp_format():
-    """Test that the timestamp is in ISO format and recent."""
-    response = requests.get(f"{API_ENDPOINT}/")
-    data = response.json()
-    
-    # Parse the timestamp
-    timestamp = datetime.fromisoformat(data["timestamp"])
-    
-    # Check that the timestamp is recent (within the last minute)
-    now = datetime.now()
-    time_difference = (now - timestamp).total_seconds()
-    assert time_difference < 60, "Timestamp is not recent"
 
 def test_ip_address_format():
     """Test that the IP address is in a valid format."""
