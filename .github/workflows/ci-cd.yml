@@ -215,9 +215,9 @@ jobs:
         id: terraform-output
         run: |
           cd terraform
-          if terraform output -json | jq -e '.api_gateway_url' > /dev/null; then
-            api_endpoint="$(terraform output -raw api_gateway_url)"
-            echo "API_ENDPOINT=$api_endpoint" >> $GITHUB_OUTPUT
+          api_gateway_url=$(terraform output -json | jq -r '.api_gateway_url.value // empty')
+          if [ -n "$api_gateway_url" ]; then
+            echo "API_ENDPOINT=$api_gateway_url" >> $GITHUB_OUTPUT
           else
             echo "Error: API Gateway URL not found in Terraform outputs."
             exit 1
