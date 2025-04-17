@@ -215,9 +215,13 @@ The workflow is triggered on:
 - Pushes to the main branch that modify app code, terraform code, Dockerfile, or CI/CD configuration
 - Pull requests to the main branch
 
+## Security Scan Results
+Please find the security scan results at:
+[security scan results](https://github.com/ankur008t/Ankur-Particle41-Test/security/code-scanning/tools/CodeQL/status)
+
 ## Live Demo
 The SimpleTimeService is currently deployed and accessible at:
-https://dp21vbdhtb.execute-api.us-east-1.amazonaws.com/dev/
+[Simple Time Service](https://dp21vbdhtb.execute-api.us-east-1.amazonaws.com/dev/)
 This endpoint returns a JSON response with the current timestamp and your IP address.
 
 ## Contributing
