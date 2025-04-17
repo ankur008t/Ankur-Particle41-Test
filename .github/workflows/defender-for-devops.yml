@@ -25,7 +25,10 @@ on:
     branches: [ "main" ]
   schedule:
     - cron: '19 14 * * 5'
-
+permissions:
+  contents: read
+  security-events: write
+  id-token: write
 jobs:
   MSDO:
     # currently only windows latest is supported
