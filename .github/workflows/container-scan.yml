@@ -1,0 +1,48 @@
+name: Container Security Scan
+
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - 'app/**'
+      - 'Dockerfile'
+      - '.github/workflows/container-scan.yml'
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - 'app/**'
+      - 'Dockerfile'
+      - '.github/workflows/container-scan.yml'
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly on Sundays
+
+permissions:
+  contents: read
+  security-events: write
+  
+jobs:
+  scan:
+    name: Scan Container Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build image
+        run: docker build -t simpletimeservice:${{ github.sha }} .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'simpletimeservice:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+          ignore-unfixed: true
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
