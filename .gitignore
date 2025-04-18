@@ -186,3 +186,4 @@ terraform/*_override.tf.json
 terraform/.terraformrc
 terraform/terraform.rc
 terraform/.terraform/
+terraform/tfplan
