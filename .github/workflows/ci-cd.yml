@@ -238,11 +238,11 @@ jobs:
     - name: Parse API_ENDPOINT
       run: |
         string="$API_ENDPOINT"
-        url=$(echo "$string" | sed -n 's/.*\(https\?:\/\/[^ ]*\).*/\1/p')
+        url=$(echo "$string" | sed -n 's/.*\(https\?:\/\/[^ ]*\).*/\1/p' | sed 's/stderr://g')
         echo "$url"
     
     - name: Run integration tests against newly deployed infrastructure
       run: |
         string="$API_ENDPOINT"
-        API_ENDPOINT=$(echo "$string" | sed -n 's/.*\(https\?:\/\/[^ ]*\).*/\1/p')
+        API_ENDPOINT=$(echo "$string" | sed -n 's/.*\(https\?:\/\/[^ ]*\).*/\1/p' | sed 's/stderr://g')
         pytest tests/test_integration.py -v
