@@ -282,7 +282,7 @@ Please find the security scan results at:
 ## Live Demo
 The SimpleTimeService is currently deployed and accessible at:
 
-[Simple Time Service](https://gamj2767le.execute-api.us-east-1.amazonaws.com/simpletimeservice-main/)
+[Simple Time Service](https://1ii7ihufbb.execute-api.us-east-1.amazonaws.com/simpletimeservice-main/)
 
 This endpoint returns a JSON response with the current timestamp and your IP address.
 
