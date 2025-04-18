@@ -211,7 +211,7 @@ jobs:
         run: |
           cd terraform
           terraform apply -auto-approve -var="branch_name=${{ steps.branch.outputs.BRANCH_NAME }}" -var="environment=${{ steps.branch.outputs.BRANCH_NAME }}" tfplan
-          api_gateway_url=$(terraform output -raw api_gateway_url)
+          api_gateway_url=$(terraform output -raw api_gateway_url | tr -d '\r' | sed 's/::debug:://g' | sed 's/Terraform//g')
           echo "API_ENDPOINT=$api_gateway_url" >> $GITHUB_OUTPUT
 
       - name: Debug Terraform Outputs
