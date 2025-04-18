@@ -68,7 +68,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     needs: [test, security-scan]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       
@@ -97,7 +97,7 @@ jobs:
     needs: [test, security-scan]
     outputs:
       API_ENDPOINT: ${{ steps.tf-apply.outputs.API_ENDPOINT }}
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       
