@@ -47,6 +47,9 @@ jobs:
       env:
         GDN_CHECKOV_DOWNLOADEXTERNALMODULES: "true"
         PYTHONIOENCODING: "utf-8"
+        GDN_CHECKOV_USEPYTHONINSTALLATION: "true"
+        PYTHONUTF8: "1"
+        
     - name: Upload results to Security tab
       uses: github/codeql-action/upload-sarif@v3
       with:
