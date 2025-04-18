@@ -91,11 +91,12 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/simpletimeservice:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/simpletimeservice:buildcache,mode=max
 
-  terraform-deploy:
+  terraform:
     runs-on: ubuntu-latest
+    name: Terraform Deploy
     needs: [test, security-scan]
     outputs:
-      API_ENDPOINT: ${{ steps.tf-apply.outputs.api_endpoint }}
+      API_ENDPOINT: ${{ steps.tf-apply.outputs.API_ENDPOINT }}
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     steps:
       - uses: actions/checkout@v3
@@ -212,20 +213,13 @@ jobs:
           cd terraform
           terraform apply -auto-approve -var="branch_name=${{ steps.branch.outputs.BRANCH_NAME }}" -var="environment=${{ steps.branch.outputs.BRANCH_NAME }}" tfplan
           api_gateway_url=$(terraform output -raw api_gateway_url | tr -d '\r' | tr -d '\n' | sed 's/::debug:://g' | sed 's/Terraform//g')
-          echo "API_ENDPOINT=${api_gateway_url}" >> $GITHUB_OUTPUT
-
-      - name: Debug Terraform Outputs
-        id: debug-terraform-output
-        run: |
-          echo "API_ENDPOINT: ${{ steps.tf-apply.outputs.API_ENDPOINT }}"
-          echo "API_ENDPOINT: ${{ steps.tf-apply.outputs.api_endpoint }}"
-        env:
-          API_ENDPOINT: ${{ steps.tf-apply.outputs.API_ENDPOINT }}
-    
+          echo "API_ENDPOINT=${api_gateway_url}" >> $GITHUB_OUTPUT    
     
   post-deployment-tests:
-    needs: terraform-deploy
+    needs: terraform
     runs-on: ubuntu-latest
+    env:
+      API_ENDPOINT: ${{ needs.terraform.outputs.API_ENDPOINT }}
     if: success()
     steps:
     - uses: actions/checkout@v3
@@ -240,8 +234,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r tests/requirements-test.txt
     
+    - name: Debug API_ENDPOINT
+      run: |
+        echo "endpoint is : $API_ENDPOINT" 
+    
     - name: Run integration tests against newly deployed infrastructure
       run: |
         pytest tests/test_integration.py -v
       env:
-        API_ENDPOINT: ${{ needs.terraform-deploy.outputs.API_ENDPOINT }}
+        API_ENDPOINT: ${{ needs.terraform.outputs.API_ENDPOINT }}
