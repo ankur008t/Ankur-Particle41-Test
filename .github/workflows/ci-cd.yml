@@ -213,7 +213,8 @@ jobs:
           cd terraform
           terraform apply -auto-approve -var="branch_name=${{ steps.branch.outputs.BRANCH_NAME }}" -var="environment=${{ steps.branch.outputs.BRANCH_NAME }}" tfplan
           api_gateway_url=$(terraform output -raw api_gateway_url | tr -d '\r' | tr -d '\n' | sed 's/::debug:://g' | sed 's/Terraform//g')
-          echo "API_ENDPOINT=${api_gateway_url}" >> $GITHUB_OUTPUT    
+          echo "API_ENDPOINT=${api_gateway_url}" >> $GITHUB_OUTPUT   
+          echo "TEST=$api_gateway_url" 
     
   post-deployment-tests:
     needs: terraform
@@ -234,12 +235,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r tests/requirements-test.txt
     
-    - name: Debug API_ENDPOINT
+    - name: Parse API_ENDPOINT
       run: |
-        echo "endpoint is : $API_ENDPOINT" 
+        string="$API_ENDPOINT"
+        url=$(echo "$string" | sed -n 's/.*\(https\?:\/\/[^ ]*\).*/\1/p')
+        echo "$url"
     
     - name: Run integration tests against newly deployed infrastructure
       run: |
+        string="$API_ENDPOINT"
+        API_ENDPOINT=$(echo "$string" | sed -n 's/.*\(https\?:\/\/[^ ]*\).*/\1/p')
         pytest tests/test_integration.py -v
-      env:
-        API_ENDPOINT: ${{ needs.terraform.outputs.API_ENDPOINT }}
